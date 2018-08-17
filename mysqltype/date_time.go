@@ -190,7 +190,7 @@ func (dt DateTime) MarshalText() ([]byte, error) {
 	return dt.src.MarshalText()
 }
 
-const dateTimeFormat = "2006-01-02 15:04:05.999999999"
+const dateTimeFormatLayout = "2006-01-02 15:04:05.999999999"
 
 var _ driver.Valuer = DateTime{}
 var _ sql.Scanner = &DateTime{}
@@ -210,7 +210,7 @@ func (dt *DateTime) Scan(value interface{}) error {
 		if !ok {
 			return ErrInvalidValueType
 		}
-		t, err := time.Parse(dateTimeFormat, string(src))
+		t, err := time.Parse(dateTimeFormatLayout, string(src))
 		if err != nil {
 			return err
 		}

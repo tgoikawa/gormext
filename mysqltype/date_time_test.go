@@ -83,8 +83,8 @@ func TestDateTimeScan(t *testing.T) {
 	now := time.Now()
 	assert.NoError(t, target.Scan(now))
 	assertTimeEquals(t, now, target.src)
-	nowStr := now.Format(dateTimeFormat)
-	nowFromFormat, err := time.Parse(dateTimeFormat, nowStr)
+	nowStr := now.Format(dateTimeFormatLayout)
+	nowFromFormat, err := time.Parse(dateTimeFormatLayout, nowStr)
 	assert.NoError(t, err)
 	target2 := DateTime{}
 	assert.NoError(t, target2.Scan([]byte(nowStr)))

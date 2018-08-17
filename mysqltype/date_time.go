@@ -26,18 +26,17 @@ func NewDateTimeFromTime(t time.Time) DateTime {
 
 // MinDateTime Minimum DateTime
 func MinDateTime() DateTime {
-	return DateTime{src: time.Date(1000, 1, 1, 0, 0, 0, 0, time.UTC)}
+	return NewDateTimeFromTime(time.Date(1000, 1, 1, 0, 0, 0, 0, time.UTC))
 }
 
 // MaxDateTime Maximum DateTime
 func MaxDateTime() DateTime {
-	return DateTime{src: time.Date(9999, 12, 31, 23, 59, 59, 999999, time.UTC)}
+	return NewDateTimeFromTime(time.Date(9999, 12, 31, 23, 59, 59, 999999, time.UTC))
 }
 
 // NowDateTime Create Now time for MySQL DataBase
 func NowDateTime() DateTime {
-	now := time.Now()
-	return DateTime{src: now}
+	return NewDateTimeFromTime(time.Now())
 }
 
 // After behavior as time.Time
@@ -176,6 +175,11 @@ func (dt DateTime) Truncate(d time.Duration) DateTime {
 	return NewDateTimeFromTime(dt.src.Truncate(d))
 }
 
+// YearDay behavior as time.Time
+func (dt DateTime) YearDay() int {
+	return dt.src.YearDay()
+}
+
 // UnmarshalText behavior as time.Time
 func (dt *DateTime) UnmarshalText(text []byte) error {
 	return dt.src.UnmarshalText(text)
@@ -184,11 +188,6 @@ func (dt *DateTime) UnmarshalText(text []byte) error {
 // MarshalText behavior as time.Time
 func (dt DateTime) MarshalText() ([]byte, error) {
 	return dt.src.MarshalText()
-}
-
-// YearDay behavior as time.Time
-func (dt DateTime) YearDay() int {
-	return dt.src.YearDay()
 }
 
 const dateTimeFormat = "2006-01-02 15:04:05.999999999"

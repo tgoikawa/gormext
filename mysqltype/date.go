@@ -14,14 +14,14 @@ type Date struct {
 }
 
 // NewDate Create new Date from time.Date
-func NewDate(year int, month time.Month, day int, loc *time.Location) Date {
-	t := time.Date(year, month, day, 0, 0, 0, 0, loc)
+func NewDate(year int, month time.Month, day int) Date {
+	t := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 	return NewDateFromTime(t)
 }
 
 // NewDateFromTime Create new Date from Time
 func NewDateFromTime(t time.Time) Date {
-	return Date{src: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())}
+	return Date{src: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)}
 }
 
 // MinDate Minimum Date
@@ -73,26 +73,6 @@ func (dt Date) Sub(u Date) time.Duration {
 // Add behavior as time.Time
 func (dt Date) Add(d time.Duration) Date {
 	return NewDateFromTime(dt.src.Add(d))
-}
-
-// Location behavior as time.Time
-func (dt Date) Location() *time.Location {
-	return dt.src.Location()
-}
-
-// Local behavior as time.Time
-func (dt Date) Local() Date {
-	return NewDateFromTime(dt.src.Local())
-}
-
-// UTC behavior as time.Time
-func (dt Date) UTC() Date {
-	return NewDateFromTime(dt.src.UTC())
-}
-
-// In behavior as time.Time
-func (dt Date) In(loc *time.Location) Date {
-	return NewDateFromTime(dt.src.In(loc))
 }
 
 // IsZero behavior as time.Time

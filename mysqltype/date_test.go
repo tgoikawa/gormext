@@ -40,26 +40,6 @@ func TestDateField(t *testing.T) {
 	assert.NoError(t, DB.Save(&DateFieldTestStruct{TargetDate: MinDate()}).Error)
 }
 
-func TestDateFieldLocale(t *testing.T) {
-	assert.NoError(t, DB.AutoMigrate(DateFieldTestStruct{}).Error)
-	asiaTokyo, err := time.LoadLocation("Asia/Tokyo")
-	assert.NoError(t, err)
-	nowUTC := NowDate().UTC()
-	nowJST := nowUTC.In(asiaTokyo)
-
-	vUTC := DateFieldTestStruct{TargetDate: nowUTC}
-	vJST := DateFieldTestStruct{TargetDate: nowJST}
-
-	assert.NoError(t, DB.Save(&vUTC).Error)
-	assert.NoError(t, DB.Save(&vJST).Error)
-	dst1 := DateFieldTestStruct{ID: vUTC.ID}
-	dst2 := DateFieldTestStruct{ID: vJST.ID}
-
-	assert.NoError(t, DB.Find(&dst1).Error)
-	assert.NoError(t, DB.Find(&dst2).Error)
-	assert.NotEqual(t, dst1.TargetDate, dst2.TargetDate)
-}
-
 func TestDateMarshalJSON(t *testing.T) {
 	now := NowDate()
 	expected, err := now.MarshalText()
@@ -93,8 +73,8 @@ func TestDateScan(t *testing.T) {
 
 func TestDateAfterAndBefore(t *testing.T) {
 	t.Parallel()
-	v1 := NewDate(2008, 10, 12, time.UTC)
-	v2 := NewDate(2008, 10, 13, time.UTC)
+	v1 := NewDate(2008, 10, 12)
+	v2 := NewDate(2008, 10, 13)
 
 	assert.True(t, v2.After(v1))
 	assert.False(t, v1.After(v2))
@@ -138,7 +118,7 @@ func TestDateAddDate(t *testing.T) {
 func TestDateSub(t *testing.T) {
 	t.Parallel()
 	now := NowDate()
-	sub := NewDate(0, 0, 1, time.UTC)
+	sub := NewDate(0, 0, 1)
 	expected := now.src.Sub(sub.src)
 	actual := now.Sub(sub)
 	assert.Equal(t, expected, actual)
@@ -151,35 +131,6 @@ func TestDateAdd(t *testing.T) {
 	expected := now.src.Add(add)
 	actual := now.Add(add)
 	assert.Equal(t, expected, actual.src)
-}
-
-func TestDateLocation(t *testing.T) {
-	t.Parallel()
-	now := NowDate()
-	assert.Equal(t, now.src.Location(), now.Location())
-}
-
-func TestDateLocal(t *testing.T) {
-	t.Parallel()
-	now := NowDate()
-	assert.Equal(t, now.Local().src, now.src.Local())
-}
-
-func TestDateIn(t *testing.T) {
-	t.Parallel()
-	asiaTokyo, err := time.LoadLocation("Asia/Tokyo")
-	assert.NoError(t, err)
-	now := NewDateFromTime(time.Now().UTC()).In(asiaTokyo)
-	expected := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	assert.Equal(t, expected, now.src)
-}
-
-func TestDateUTC(t *testing.T) {
-	t.Parallel()
-	asiaTokyo, err := time.LoadLocation("Asia/Tokyo")
-	assert.NoError(t, err)
-	nowJST := NewDateFromTime(time.Now().In(asiaTokyo))
-	assert.Equal(t, nowJST.src.UTC().Truncate(24*time.Hour), nowJST.UTC().src)
 }
 
 func TestDateIsZero(t *testing.T) {

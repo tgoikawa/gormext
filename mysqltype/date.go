@@ -117,15 +117,20 @@ func (dt Date) YearDay() int {
 
 // UnmarshalText behavior as time.Time
 func (dt *Date) UnmarshalText(text []byte) error {
-	return dt.src.UnmarshalText(text)
+	t, err := time.Parse(dateFormatLayout, string(text))
+	if err != nil {
+		return err
+	}
+	dt.src = t
+	return nil
 }
 
 // MarshalText behavior as time.Time
 func (dt Date) MarshalText() ([]byte, error) {
-	return dt.src.MarshalText()
+	return []byte(dt.src.Format(dateFormatLayout)), nil
 }
 
-const dateFormat = "2006-01-02"
+const dateFormatLayout = "2006-01-02"
 
 var _ driver.Valuer = Date{}
 var _ sql.Scanner = &Date{}
@@ -145,7 +150,7 @@ func (dt *Date) Scan(value interface{}) error {
 		if !ok {
 			return ErrInvalidValueType
 		}
-		t, err := time.Parse(dateFormat, string(src))
+		t, err := time.Parse(dateFormatLayout, string(src))
 		if err != nil {
 			return err
 		}

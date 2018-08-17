@@ -49,6 +49,14 @@ func TestDateMarshalJSON(t *testing.T) {
 	assert.EqualValues(t, "\""+string(expected)+"\"", string(actual))
 }
 
+func TestDateMarshalText(t *testing.T) {
+	now := NowDate()
+	actual, err := now.MarshalText()
+	assert.NoError(t, err)
+	expected := now.src.Format(dateFormatLayout)
+	assert.EqualValues(t, expected, actual)
+}
+
 func TestDateValue(t *testing.T) {
 	t.Parallel()
 	dateTime := NowDate()
@@ -63,8 +71,8 @@ func TestDateScan(t *testing.T) {
 	now := NowDate().src
 	assert.NoError(t, target.Scan(now))
 	assertTimeEquals(t, now, target.src)
-	nowStr := now.Format(dateFormat)
-	nowFromFormat, err := time.Parse(dateFormat, nowStr)
+	nowStr := now.Format(dateFormatLayout)
+	nowFromFormat, err := time.Parse(dateFormatLayout, nowStr)
 	assert.NoError(t, err)
 	target2 := Date{}
 	assert.NoError(t, target2.Scan([]byte(nowStr)))
@@ -99,11 +107,11 @@ func TestDateToTime(t *testing.T) {
 
 func TestDateTextUnmarshalText(t *testing.T) {
 	t.Parallel()
-	text := "2016-12-31T20:02:05.123456Z"
+	text := "2016-12-31"
 	target := NewDateFromTime(time.Time{})
 	target.UnmarshalText([]byte(text))
-	expected := time.Time{}
-	expected.UnmarshalText([]byte(text))
+	expected, err := time.Parse(dateFormatLayout, text)
+	assert.NoError(t, err)
 	assertTimeEquals(t, expected, target.src)
 }
 

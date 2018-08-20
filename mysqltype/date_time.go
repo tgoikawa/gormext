@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding"
+	"encoding/json"
 	"time"
 )
 
@@ -190,11 +191,36 @@ func (dt DateTime) MarshalText() ([]byte, error) {
 	return dt.src.MarshalText()
 }
 
+// UnmarshalBinary behavior as time.Time
+func (dt *DateTime) UnmarshalBinary(data []byte) error {
+	return dt.src.UnmarshalBinary(data)
+}
+
+// MarshalBinary behavior as time.Time
+func (dt DateTime) MarshalBinary() ([]byte, error) {
+	return dt.src.MarshalBinary()
+}
+
+// UnmarshalJSON behavior as time.Time
+func (dt *DateTime) UnmarshalJSON(data []byte) error {
+	return dt.src.UnmarshalJSON(data)
+}
+
+// MarshalJSON behavior as time.Time
+func (dt DateTime) MarshalJSON() ([]byte, error) {
+	return dt.src.MarshalJSON()
+}
+
 const dateTimeFormatLayout = "2006-01-02 15:04:05.999999999"
 
 var _ driver.Valuer = DateTime{}
 var _ sql.Scanner = &DateTime{}
 var _ encoding.TextUnmarshaler = &DateTime{}
+var _ encoding.TextMarshaler = DateTime{}
+var _ encoding.BinaryMarshaler = DateTime{}
+var _ encoding.BinaryUnmarshaler = &DateTime{}
+var _ json.Marshaler = DateTime{}
+var _ json.Unmarshaler = &DateTime{}
 
 // Scan for sql.Scanner
 func (dt *DateTime) Scan(value interface{}) error {

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding"
+	"encoding/json"
 	"time"
 )
 
@@ -116,18 +117,56 @@ func (dt Date) YearDay() int {
 }
 
 // UnmarshalText behavior as time.Time
+// But only Date
 func (dt *Date) UnmarshalText(text []byte) error {
-	t, err := time.Parse(dateFormatLayout, string(text))
-	if err != nil {
+	t := time.Time{}
+
+	if err := t.UnmarshalText(text); err != nil {
 		return err
 	}
-	dt.src = t
+	dt.src = fixTimeToDate(t)
 	return nil
 }
 
 // MarshalText behavior as time.Time
 func (dt Date) MarshalText() ([]byte, error) {
-	return []byte(dt.src.Format(dateFormatLayout)), nil
+	return dt.src.MarshalText()
+}
+
+// UnmarshalBinary behavior as time.Time
+// But only Date
+func (dt *Date) UnmarshalBinary(data []byte) error {
+	t := time.Time{}
+
+	if err := t.UnmarshalBinary(data); err != nil {
+		return err
+	}
+
+	dt.src = fixTimeToDate(t)
+	return nil
+}
+
+// MarshalBinary behavior as time.Time
+func (dt *Date) MarshalBinary() ([]byte, error) {
+	return dt.MarshalBinary()
+}
+
+// UnmarshalJSON  behavior as time.Time
+// But only Date
+func (dt *Date) UnmarshalJSON(data []byte) error {
+	t := time.Time{}
+
+	if err := t.UnmarshalJSON(data); err != nil {
+		return err
+	}
+
+	dt.src = fixTimeToDate(t)
+	return nil
+}
+
+// MarshalJSON  behavior as time.Time
+func (dt *Date) MarshalJSON() ([]byte, error) {
+	return dt.src.MarshalJSON()
 }
 
 const dateFormatLayout = "2006-01-02"
@@ -135,6 +174,11 @@ const dateFormatLayout = "2006-01-02"
 var _ driver.Valuer = Date{}
 var _ sql.Scanner = &Date{}
 var _ encoding.TextUnmarshaler = &Date{}
+var _ encoding.TextMarshaler = DateTime{}
+var _ encoding.BinaryMarshaler = DateTime{}
+var _ encoding.BinaryUnmarshaler = &DateTime{}
+var _ json.Marshaler = DateTime{}
+var _ json.Unmarshaler = &DateTime{}
 
 // Scan for sql.Scanner
 func (dt *Date) Scan(value interface{}) error {
@@ -163,4 +207,8 @@ func (dt *Date) Scan(value interface{}) error {
 // Value for driver.Valuer
 func (dt Date) Value() (driver.Value, error) {
 	return dt.src, nil
+}
+
+func fixTimeToDate(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }

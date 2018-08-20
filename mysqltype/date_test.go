@@ -53,7 +53,8 @@ func TestDateMarshalText(t *testing.T) {
 	now := NowDate()
 	actual, err := now.MarshalText()
 	assert.NoError(t, err)
-	expected := now.src.Format(dateFormatLayout)
+	expected, err := now.src.MarshalText()
+	assert.NoError(t, err)
 	assert.EqualValues(t, expected, actual)
 }
 
@@ -107,10 +108,11 @@ func TestDateToTime(t *testing.T) {
 
 func TestDateTextUnmarshalText(t *testing.T) {
 	t.Parallel()
-	text := "2016-12-31"
-	target := NewDateFromTime(time.Time{})
+	text := "2016-12-31T20:02:05.123456Z"
+	target := DateTime{}
 	target.UnmarshalText([]byte(text))
-	expected, err := time.Parse(dateFormatLayout, text)
+	expected := time.Time{}
+	err := expected.UnmarshalText([]byte(text))
 	assert.NoError(t, err)
 	assertTimeEquals(t, expected, target.src)
 }
